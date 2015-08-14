@@ -1,21 +1,18 @@
-# from rest_framework.decorators import api_view
-# from rest_framework.response import Response
-# from rest_framework.reverse import reverse
+from django.contrib.auth.models import Group
+from oauth2_provider.ext.rest_framework import TokenHasReadWriteScope, TokenHasScope
+from rest_framework import viewsets, permissions
+from apiserver.serializers import UserSerializer, GroupSerializer
+from apiserver.models import User
 
-# import logging
-#
-# from django.shortcuts import render_to_response
-# from django.template import RequestContext
-#
-# logger = logging.getLogger(__name__)
-# logger.setLevel(logging.WARNING)
-#
-# def home(request):
-#
-#     """
-#     Say hello!
-#     :param request:
-#     :return response:
-#     """
-#     return render_to_response('hello_world.html',
-#                               context_instance=RequestContext(request))
+from dry_rest_permissions.generics import DRYPermissions
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [DRYPermissions,]
+
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    required_scopes = ['groups']
+    permission_classes = [permissions.IsAuthenticated, TokenHasScope]

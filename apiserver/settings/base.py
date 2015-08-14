@@ -47,6 +47,8 @@ INSTALLED_APPS = (
     'djcelery',
     'apiserver',
     'rest_framework',
+    'oauth2_provider',
+    'dry_rest_permissions',
     'projects',
 )
 
@@ -102,7 +104,18 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PERMISSION_CLASSES': [
     #     'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     # ],
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+    ),
     'PAGE_SIZE': 10
+}
+
+OAUTH2_PROVIDER = {
+    # this is the list of available scopes
+    'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'groups': 'Access to your groups'}
 }
 
 # Internationalization
