@@ -1,7 +1,21 @@
 from django.contrib.auth import models
-from rest_framework import permissions
+from django.db.models import Manager
+from profiles.models import Profile
+
+class UserManager(Manager):
+
+    def create(self, validated_data):
+        profile_data = validated_data.pop('profile', {})
+        user = User(**validated_data)
+        user.save()
+        Profile.objects.create(user=user, **profile_data)
+        return user
+
+    # TODO: def update(self, instance, validated_data):
 
 class User(models.User):
+    objects = UserManager()
+
     class Meta:
         proxy = True
 

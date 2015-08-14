@@ -30,6 +30,7 @@ SECRET_KEY = 'dev_secret'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# SECURITY WARNING: don't run with wildcard in production!
 ALLOWED_HOSTS = ['*']
 
 
@@ -45,10 +46,12 @@ INSTALLED_APPS = (
 
     'gunicorn',
     'djcelery',
-    'apiserver',
     'rest_framework',
     'oauth2_provider',
     'dry_rest_permissions',
+
+    'apiserver',
+    'profiles',
 )
 
 MIDDLEWARE_CLASSES = (
