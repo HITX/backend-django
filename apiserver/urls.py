@@ -14,5 +14,5 @@ urlpatterns = patterns('',
     # url(r'^', include('projects.urls')),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^accounts/', include(admin.site.urls)),
 )
