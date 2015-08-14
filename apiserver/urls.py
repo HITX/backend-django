@@ -11,7 +11,6 @@ router.register(r'groups', GroupViewSet)
 
 urlpatterns = patterns('',
     url(r'^', include(router.urls)),
-    url(r'^', include('profiles.urls')),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^accounts/', include(admin.site.urls)),
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
