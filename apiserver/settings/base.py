@@ -33,6 +33,9 @@ DEBUG = True
 # SECURITY WARNING: don't run with wildcard in production!
 ALLOWED_HOSTS = ['*']
 
+# SECURITY WARNING: probably don't run allow all in production!
+CORS_ORIGIN_ALLOW_ALL = True
+
 
 # Application definition
 
@@ -48,6 +51,7 @@ INSTALLED_APPS = (
     'djcelery',
     'rest_framework',
     'oauth2_provider',
+    'corsheaders',
     'dry_rest_permissions',
 
     'apiserver',
@@ -56,6 +60,7 @@ INSTALLED_APPS = (
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

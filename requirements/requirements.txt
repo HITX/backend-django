@@ -6,3 +6,4 @@ djangorestframework==3.2.1
 markdown==2.6.2
 django-oauth-toolkit==0.9.0
 dry-rest-permissions==0.1.0
+django-cors-headers==1.1.0
