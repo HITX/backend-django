@@ -2,7 +2,7 @@ from django.contrib.auth import models
 from django.db.models import Manager
 from profiles.models import Profile
 
-class UserManager(Manager):
+class UserManager(models.UserManager):
 
     def create(self, validated_data):
         profile_data = validated_data.pop('profile', {})
@@ -12,6 +12,7 @@ class UserManager(Manager):
         return user
 
     # TODO: def update(self, instance, validated_data):
+
 
 class User(models.User):
     objects = UserManager()
