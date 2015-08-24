@@ -8,8 +8,15 @@ class UserManager(models.UserManager):
     def create(self, validated_data):
         profile_data = validated_data.pop('profile', {})
 
-        user = User(**validated_data)
-        user.save()
+        # TODO: Properly validate that these fields exist before we get here
+        username = validated_data.pop('username')
+        email = validated_data.pop('email')
+        password = validated_data.pop('password')
+
+        user = self.create_user(username, email, password, **validated_data)
+
+        # user = User(**validated_data)
+        # user.save()
 
         Profile.objects.create(user=user, **profile_data)
         UserSettings.objects.create(user=user)

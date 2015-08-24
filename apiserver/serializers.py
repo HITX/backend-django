@@ -1,6 +1,9 @@
 from django.contrib.auth.models import Group
+
 from rest_framework import serializers
+
 from apiserver.models import User
+from apiserver.validators import RequiredValidator
 from profiles.serializers import ProfileSerializer
 
 class UserSerializer(serializers.ModelSerializer):
@@ -19,6 +22,9 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True}
         }
+        validators = [
+            RequiredValidator(fields=('username', 'email', 'password'))
+        ]
 
     def create(self, validated_data):
         return User.objects.create(validated_data)
