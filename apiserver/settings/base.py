@@ -54,8 +54,9 @@ INSTALLED_APPS = (
     'corsheaders',
     'dry_rest_permissions',
 
-    'apiserver',
     'profiles',
+    'user_settings',
+    'apiserver',
 )
 
 MIDDLEWARE_CLASSES = (

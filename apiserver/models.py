@@ -1,14 +1,19 @@
 from django.contrib.auth import models
 from django.db.models import Manager
 from profiles.models import Profile
+from user_settings.models import UserSettings
 
 class UserManager(models.UserManager):
 
     def create(self, validated_data):
         profile_data = validated_data.pop('profile', {})
+
         user = User(**validated_data)
         user.save()
+
         Profile.objects.create(user=user, **profile_data)
+        UserSettings.objects.create(user=user)
+
         return user
 
     # TODO: def update(self, instance, validated_data):
@@ -45,3 +50,10 @@ class User(models.User):
 
     def has_object_write_permission(self, request):
         return request.user == self
+
+    # def has_object_settings_permission(self, request):
+    #     return (
+    #         request.user.is_authenticated() and
+    #         request.auth.is_valid(['read']) and
+    #         request.user == self
+    #     )

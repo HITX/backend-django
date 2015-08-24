@@ -5,9 +5,12 @@ from oauth2_provider.ext.rest_framework import TokenHasReadWriteScope, TokenHasS
 from rest_framework import viewsets, permissions
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
+from rest_framework.decorators import detail_route
 
 from apiserver.serializers import UserSerializer, GroupSerializer
 from apiserver.models import User
+
+# from user_settings.serializers import UserSettingsSerializer
 
 from dry_rest_permissions.generics import DRYPermissions
 
@@ -25,6 +28,22 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(UserSerializer(request.user).data)
 
         return super(UserViewSet, self).retrieve(request, pk)
+
+    # @detail_route(methods=['get', 'post'])
+    # def user_settings(self, requeset, pk=None):
+    #     user = self.get_object()
+    #
+    #     if request.method == 'GET':
+    #         return Response(UserSettingsSerializer(user.user_settings).data)
+    #
+    #     elif request.method == 'POST':
+    #         serializer = UserSettingsSerializer(data=request.data)
+    #
+    #         if serializer.is_valid():
+    #             serializer.save()
+    #             return Response(serializer.data, status=status.HTTP_200_OK)
+    #         else:
+    #             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
