@@ -3,31 +3,46 @@ from django.contrib.auth.models import Group
 from oauth2_provider.ext.rest_framework import TokenHasReadWriteScope, TokenHasScope
 
 from rest_framework import viewsets, permissions
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 
-from apiserver.serializers import UserSerializer, GroupSerializer
+from apiserver.serializers import InternSerializer, OrgSerializer, GroupSerializer
 from apiserver.models import User
 
 # from user_settings.serializers import UserSettingsSerializer
 
 from dry_rest_permissions.generics import DRYPermissions
 
-class UserViewSet(viewsets.ModelViewSet):
+class InternViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = InternSerializer
     permission_classes = [DRYPermissions,]
 
     def retrieve(self, request, pk=None):
         if pk == 'me':
-            print('In the me retrieve section')
-            print(request.user)
             if not request.user.is_authenticated():
                 raise AuthenticationFailed()
-            return Response(UserSerializer(request.user).data)
+            if not request.user.is_intern:
+                raise NotFound()
+            return Response(InternSerializer(request.user).data)
 
-        return super(UserViewSet, self).retrieve(request, pk)
+        return super(InternViewSet, self).retrieve(request, pk)
+
+class OrgViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.orgs
+    serializer_class = OrgSerializer
+    permission_classes = [DRYPermissions,]
+
+    def retrieve(self, request, pk=None):
+        if pk == 'me':
+            if not request.user.is_authenticated():
+                raise AuthenticationFailed()
+            if not request.user.is_org:
+                raise NotFound()
+            return Response(OrgSerializer(request.user).data)
+
+        return super(OrgViewSet, self).retrieve(request, pk)
 
     # @detail_route(methods=['get', 'post'])
     # def user_settings(self, requeset, pk=None):

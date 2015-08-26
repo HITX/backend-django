@@ -1,14 +1,15 @@
 from django.conf.urls import include, url, patterns
 from rest_framework import routers
 
-from apiserver.views import UserViewSet, GroupViewSet
+from apiserver.views import InternViewSet, OrgViewSet, GroupViewSet
 from user_settings.views import UserSettingsView
 
 from django.contrib import admin
 admin.autodiscover()
 
 router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
+router.register(r'interns', InternViewSet)
+router.register(r'orgs', OrgViewSet)
 router.register(r'groups', GroupViewSet)
 
 urlpatterns = patterns('',
