@@ -29,8 +29,9 @@ class BaseUserSerializer(ErrorMessages, ModelSerializer):
             'username',
             'password',
             'email',
-            # 'profile',
+            'user_type',
         )
+        read_only_fields = ('user_type',)
         extra_kwargs = {
             'password': {'write_only': True}
         }

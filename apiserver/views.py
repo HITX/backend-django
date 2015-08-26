@@ -2,7 +2,8 @@ from django.contrib.auth.models import Group
 
 from oauth2_provider.ext.rest_framework import TokenHasReadWriteScope, TokenHasScope
 
-from rest_framework import viewsets, permissions
+from rest_framework import permissions
+from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
@@ -14,8 +15,8 @@ from apiserver.models import User
 
 from dry_rest_permissions.generics import DRYPermissions
 
-class InternViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+class InternViewSet(ModelViewSet):
+    queryset = User.objects.interns
     serializer_class = InternSerializer
     permission_classes = [DRYPermissions,]
 
@@ -29,7 +30,7 @@ class InternViewSet(viewsets.ModelViewSet):
 
         return super(InternViewSet, self).retrieve(request, pk)
 
-class OrgViewSet(viewsets.ModelViewSet):
+class OrgViewSet(ModelViewSet):
     queryset = User.objects.orgs
     serializer_class = OrgSerializer
     permission_classes = [DRYPermissions,]
@@ -60,7 +61,35 @@ class OrgViewSet(viewsets.ModelViewSet):
     #         else:
     #             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class GroupViewSet(viewsets.ModelViewSet):
+class MeViewSet(ViewSet):
+    def retrieve(self, request):
+        if not request.user.is_authenticated():
+            raise AuthenticationFailed()
+
+        if request.user.is_intern:
+            serializer = InternSerializer
+        elif request.user.is_org:
+            serializer = OrgSerializer
+        else:
+            raise Exception('Unknown user type')
+
+        return Response(serializer(request.user).data)
+
+    def update(self, request):
+        raise Exception('Not yet implemented')
+
+    def partial_update(self, request):
+        raise Exception('Not yet implemented')
+
+    def destroy(self, request):
+        raise Exception('Not yet implemented')
+
+    @detail_route(methods=['get', 'post'], url_path='settings')
+    def user_settings(self, request):
+        raise Exception('Not yet implemented')
+
+
+class GroupViewSet(ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     required_scopes = ['groups']
