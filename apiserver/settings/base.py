@@ -91,6 +91,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'apiserver.wsgi.application'
 
+AUTH_USER_MODEL = 'apiserver.User'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
