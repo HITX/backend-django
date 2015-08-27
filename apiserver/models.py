@@ -66,7 +66,8 @@ class UserManager(BaseUserManager):
         return self.create({
             'username': username,
             'email': email,
-            'password': password
+            'password': password,
+            'user_type': User.USER_TYPE_INTERN
         })
 
     def create_superuser(self, username, email, password):
@@ -74,6 +75,7 @@ class UserManager(BaseUserManager):
             'username': username,
             'email': email,
             'password': password,
+            'user_type': User.USER_TYPE_INTERN,
             'is_staff': True
         })
 
