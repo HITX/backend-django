@@ -42,10 +42,10 @@ class OrgViewSet(ModelViewSet):
     #             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MeViewSet(ViewSet):
-    def retrieve(self, request):
-        if not request.user.is_authenticated():
-            raise AuthenticationFailed()
+    required_scopes = ['read']
+    permission_classes = [permissions.IsAuthenticated, TokenHasScope]
 
+    def retrieve(self, request):
         if request.user.is_intern:
             serializer = InternSerializer
         elif request.user.is_org:
