@@ -20,30 +20,10 @@ class InternViewSet(ModelViewSet):
     serializer_class = InternSerializer
     permission_classes = [DRYPermissions,]
 
-    def retrieve(self, request, pk=None):
-        if pk == 'me':
-            if not request.user.is_authenticated():
-                raise AuthenticationFailed()
-            if not request.user.is_intern:
-                raise NotFound()
-            return Response(InternSerializer(request.user).data)
-
-        return super(InternViewSet, self).retrieve(request, pk)
-
 class OrgViewSet(ModelViewSet):
     queryset = User.objects.orgs
     serializer_class = OrgSerializer
     permission_classes = [DRYPermissions,]
-
-    def retrieve(self, request, pk=None):
-        if pk == 'me':
-            if not request.user.is_authenticated():
-                raise AuthenticationFailed()
-            if not request.user.is_org:
-                raise NotFound()
-            return Response(OrgSerializer(request.user).data)
-
-        return super(OrgViewSet, self).retrieve(request, pk)
 
     # @detail_route(methods=['get', 'post'])
     # def user_settings(self, requeset, pk=None):
