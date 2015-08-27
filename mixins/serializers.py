@@ -1,7 +1,5 @@
 class ErrorMessages(object):
     def __init__(self, *args, **kwargs):
-        super(ErrorMessages, self).__init__(*args, **kwargs)
-
         messages = self.Meta.error_messages
         for field_name in messages:
             names = messages[field_name].get('names', None)
@@ -17,3 +15,5 @@ class ErrorMessages(object):
                 for validator in self.fields[field_name].validators:
                     if type(validator) in validator_keys:
                         validator.message = validator_keys[type(validator)]
+
+        super(ErrorMessages, self).__init__(*args, **kwargs)
