@@ -6,6 +6,8 @@ from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, Permis
 from profiles.models import InternProfile, OrgProfile
 from user_settings.models import UserSettings
 
+from mixins.models.permissions import IsAuthenticatedOrReadOnlyAndCreate
+
 class UserManager(BaseUserManager):
     def create(self, validated_data):
         profile_data = validated_data.pop('profile', {})
@@ -80,6 +82,8 @@ class UserManager(BaseUserManager):
             'is_staff': True
         })
 
+
+    # User type helpers
     def _get_interns(self):
         return self.get_queryset().filter(user_type=User.USER_TYPE_INTERN)
 
@@ -90,7 +94,8 @@ class UserManager(BaseUserManager):
     orgs = property(_get_orgs)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin, IsAuthenticatedOrReadOnlyAndCreate):
+    # User types
     USER_TYPE_INTERN = 1
     USER_TYPE_ORG = 2
     USER_TYPE_CHOICES = ((USER_TYPE_INTERN, 'Intern'), (USER_TYPE_ORG, 'Organization'))
@@ -136,23 +141,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         db_table = 'auth_user'
 
-    def _is_intern(self):
-        return self.user_type == self.USER_TYPE_INTERN
-
-    def _is_org(self):
-        return self.user_type == self.USER_TYPE_ORG
-
-    def _get_profile(self):
-        if self.user_type == self.USER_TYPE_INTERN:
-            return self.intern_profile
-        elif self.user_type == self.USER_TYPE_ORG:
-            return self.org_profile
-        raise Exception('Unknown user type')
-
-    is_intern = property(_is_intern)
-    is_org = property(_is_org)
-    profile = property(_get_profile)
-
     def get_full_name(self):
         return self.username
 
@@ -161,26 +149,33 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # def email_user(self, ...)
 
-    @staticmethod
-    def has_read_permission(request):
-        return True
 
-    @staticmethod
-    def has_write_permission(request):
-        user = request.user
-        token = request.auth
+    # User type helpers
+    def is_type(self, type):
+        return self.user_type == type
 
-        if (user and token and
-            user.is_authenticated() and
-            token.is_valid(['write'])):
-            return True
+    def _is_intern(self):
+        return self.user_type == self.USER_TYPE_INTERN
 
-        return False
+    def _is_org(self):
+        return self.user_type == self.USER_TYPE_ORG
 
-    @staticmethod
-    def has_create_permission(request):
-        return True
+    is_intern = property(_is_intern)
+    is_org = property(_is_org)
 
+
+    # Profile helpers
+    def _get_profile(self):
+        if self.user_type == self.USER_TYPE_INTERN:
+            return self.intern_profile
+        elif self.user_type == self.USER_TYPE_ORG:
+            return self.org_profile
+        raise Exception('Unknown user type')
+
+    profile = property(_get_profile)
+
+
+    # Object permissions
     def has_object_read_permission(self, request):
         return True
 
