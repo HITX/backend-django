@@ -54,6 +54,7 @@ INSTALLED_APPS = (
     'corsheaders',
     'dry_rest_permissions',
 
+    'projects',
     'profiles',
     'user_settings',
     'apiserver',

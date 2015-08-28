@@ -10,13 +10,11 @@ from rest_framework.exceptions import NotFound
 from apiserver.models import User
 
 from profiles.models import InternProfile, OrgProfile
-from profiles.seriailizers import InternProfileSerializer, OrgProfileSerializer
+from profiles.serializers import InternProfileSerializer, OrgProfileSerializer
 
 from mixins.serializers import ErrorMessages
 
 class BaseUserSerializer(ErrorMessages, ModelSerializer):
-    # profile = ProfileField(required=False)
-
     class Meta:
         abstract = True
         model = User
