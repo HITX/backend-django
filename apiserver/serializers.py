@@ -8,19 +8,13 @@ from rest_framework.validators import UniqueValidator
 from rest_framework.exceptions import NotFound
 
 from apiserver.models import User
-from apiserver.validators import RequiredValidator
 
-from intern_profiles.models import InternProfile
-from intern_profiles.serializers import InternProfileSerializer
-
-from org_profiles.models import OrgProfile
-from org_profiles.serializers import OrgProfileSerializer
+from profiles.models import InternProfile, OrgProfile
+from profiles.serializers import InternProfileSerializer, OrgProfileSerializer
 
 from mixins.serializers import ErrorMessages
 
 class BaseUserSerializer(ErrorMessages, ModelSerializer):
-    # profile = ProfileField(required=False)
-
     class Meta:
         abstract = True
         model = User

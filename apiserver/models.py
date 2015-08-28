@@ -1,11 +1,10 @@
-from intern_profiles.models import InternProfile
-from org_profiles.models import OrgProfile
-from user_settings.models import UserSettings
-
 from django.db import models
 from django.core import validators
 from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
+
+from profiles.models import InternProfile, OrgProfile
+from user_settings.models import UserSettings
 
 class UserManager(BaseUserManager):
     def create(self, validated_data):
@@ -143,9 +142,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def _get_profile(self):
         if self.user_type == self.USER_TYPE_INTERN:
-            return self.internprofile
+            return self.intern_profile
         elif self.user_type == self.USER_TYPE_ORG:
-            return self.orgprofile
+            return self.org_profile
         raise Exception('Unknown user type')
 
     is_intern = property(_is_intern)

@@ -13,11 +13,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='OrgProfile',
+            name='Project',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('data', models.CharField(default=b'org profile data', max_length=256)),
-                ('user', models.OneToOneField(related_name='orgprofile', to=settings.AUTH_USER_MODEL)),
+                ('title', models.CharField(default=b'Project Title', max_length=256)),
+                ('description', models.TextField(default=b'Project description and so on...', max_length=1024)),
+                ('owner', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]
