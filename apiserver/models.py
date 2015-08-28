@@ -1,11 +1,10 @@
-from intern_profiles.models import InternProfile
-from org_profiles.models import OrgProfile
-from user_settings.models import UserSettings
-
 from django.db import models
 from django.core import validators
 from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
+
+from profiles.models import InternProfile, OrgProfile
+from user_settings.models import UserSettings
 
 class UserManager(BaseUserManager):
     def create(self, validated_data):
