@@ -61,6 +61,8 @@ class UserManager(BaseUserManager):
 
         return instance
 
+    # TODO: Get rid of create(...) and add validated_data to the
+    # declaration in create_user and create_superuser
     def create_user(self, username, email, password=None):
         return self.create({
             'username': username,
