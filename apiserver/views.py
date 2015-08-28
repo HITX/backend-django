@@ -41,7 +41,16 @@ class OrgViewSet(ModelViewSet):
     #         else:
     #             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class GroupViewSet(ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+
+    # Use normal permissions for third party model
+    required_scopes = ['groups']
+    permission_classes = [permissions.IsAuthenticated, TokenHasScope]
+
 class MeViewSet(ViewSet):
+    # Ignore DRY permissions as actions apply directly to user's own model
     required_scopes = ['read']
     permission_classes = [permissions.IsAuthenticated, TokenHasScope]
 
@@ -67,10 +76,3 @@ class MeViewSet(ViewSet):
     @detail_route(methods=['get', 'post'], url_path='settings')
     def user_settings(self, request):
         raise Exception('Not yet implemented')
-
-
-class GroupViewSet(ModelViewSet):
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-    required_scopes = ['groups']
-    permission_classes = [permissions.IsAuthenticated, TokenHasScope]

@@ -143,9 +143,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def _get_profile(self):
         if self.user_type == self.USER_TYPE_INTERN:
-            return self.internprofile
+            return self.intern_profile
         elif self.user_type == self.USER_TYPE_ORG:
-            return self.orgprofile
+            return self.org_profile
         raise Exception('Unknown user type')
 
     is_intern = property(_is_intern)
