@@ -1,7 +1,7 @@
 from django.db import models
 from django.core import validators
 from django.utils import timezone
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin, Permission
 
 from profiles.models import InternProfile, OrgProfile
 from user_settings.models import UserSettings
@@ -74,13 +74,15 @@ class UserManager(BaseUserManager):
         })
 
     def create_superuser(self, username, email, password):
-        return self.create({
+        user = self.create({
             'username': username,
             'email': email,
             'password': password,
             'user_type': User.USER_TYPE_INTERN,
             'is_staff': True
         })
+        user.user_permissions = Permission.objects.all()
+        return user
 
 
     # User type helpers
