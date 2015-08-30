@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from apiserver.routers import MeRouter
 from apiserver.views import InternViewSet, OrgViewSet, GroupViewSet, MeViewSet
 # from user_settings.views import UserSettingsView
-from projects.views import ProjectViewSet
+from projects.views import ProjectViewSet, SubmissionViewSet
 
 from django.contrib import admin
 admin.autodiscover()
@@ -15,6 +15,7 @@ router.register(r'orgs', OrgViewSet)
 router.register(r'groups', GroupViewSet)
 
 router.register(r'projects', ProjectViewSet)
+router.register(r'submissions', SubmissionViewSet)
 
 meRouter = MeRouter()
 meRouter.register(r'me', MeViewSet, base_name='me')

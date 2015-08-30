@@ -4,9 +4,12 @@ from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin, Permission
 
 from profiles.models import InternProfile, OrgProfile
+from projects.models import Submission
 from user_settings.models import UserSettings
 
-from mixins.models.permissions import IsAuthenticatedOrReadOnlyAndCreate
+from mixins.models.permissions import IsAuthOrReadOnlyAndCreate
+
+from constants import UserTypes
 
 class UserManager(BaseUserManager):
     def create(self, validated_data):
@@ -70,7 +73,7 @@ class UserManager(BaseUserManager):
             'username': username,
             'email': email,
             'password': password,
-            'user_type': User.USER_TYPE_INTERN
+            'user_type': UserTypes.INTERN
         })
 
     def create_superuser(self, username, email, password):
@@ -78,7 +81,7 @@ class UserManager(BaseUserManager):
             'username': username,
             'email': email,
             'password': password,
-            'user_type': User.USER_TYPE_INTERN,
+            'user_type': UserTypes.INTERN,
             'is_staff': True
         })
         user.user_permissions = Permission.objects.all()
@@ -87,21 +90,16 @@ class UserManager(BaseUserManager):
 
     # User type helpers
     def _get_interns(self):
-        return self.get_queryset().filter(user_type=User.USER_TYPE_INTERN)
+        return self.get_queryset().filter(user_type=UserTypes.INTERN)
 
     def _get_orgs(self):
-        return self.get_queryset().filter(user_type=User.USER_TYPE_ORG)
+        return self.get_queryset().filter(user_type=UserTypes.ORG)
 
     interns = property(_get_interns)
     orgs = property(_get_orgs)
 
 
-class User(AbstractBaseUser, PermissionsMixin, IsAuthenticatedOrReadOnlyAndCreate):
-    # User types
-    USER_TYPE_INTERN = 1
-    USER_TYPE_ORG = 2
-    USER_TYPE_CHOICES = ((USER_TYPE_INTERN, 'Intern'), (USER_TYPE_ORG, 'Organization'))
-
+class User(AbstractBaseUser, PermissionsMixin, IsAuthOrReadOnlyAndCreate):
     username = models.CharField (
         max_length = 20,
         unique = True,
@@ -133,7 +131,7 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthenticatedOrReadOnlyAndCreat
         help_text = 'Designates whether this user should be treated as active. Unselect this instead of deleting accounts'
     )
     date_joined = models.DateTimeField( default = timezone.now )
-    user_type = models.IntegerField( choices = USER_TYPE_CHOICES )
+    user_type = models.IntegerField( choices = UserTypes.CHOICES )
 
     objects = UserManager()
 
@@ -157,10 +155,12 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthenticatedOrReadOnlyAndCreat
         return self.user_type == type
 
     def _is_intern(self):
-        return self.user_type == self.USER_TYPE_INTERN
+        # return self.user_type == self.USER_TYPE_INTERN
+        return self.is_type(UserTypes.INTERN)
 
     def _is_org(self):
-        return self.user_type == self.USER_TYPE_ORG
+        # return self.user_type == self.USER_TYPE_ORG
+        return self.is_type(UserTypes.ORG)
 
     is_intern = property(_is_intern)
     is_org = property(_is_org)
@@ -168,13 +168,38 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthenticatedOrReadOnlyAndCreat
 
     # Profile helpers
     def _get_profile(self):
-        if self.user_type == self.USER_TYPE_INTERN:
+        # if self.user_type == self.USER_TYPE_INTERN:
+        if self.is_intern:
             return self.intern_profile
-        elif self.user_type == self.USER_TYPE_ORG:
+        # elif self.user_type == self.USER_TYPE_ORG:
+        elif self.is_org:
             return self.org_profile
         raise Exception('Unknown user type')
 
     profile = property(_get_profile)
+
+
+    # Project helpers
+    def _get_projects(self):
+        if self.is_intern:
+            return self.submitted_projects
+        elif self.is_org:
+            return self.owned_projects
+        raise Exception('Unknown user type')
+
+    projects = property(_get_projects)
+
+    # Submission helpers
+    def _get_submissions(self):
+        if self.is_intern:
+            return self.intern_submissions
+        elif self.is_org:
+            return Submission.objects.filter(project__owner=self)
+            # return reduce(lambda a,b: a + b.submissions.all(), self.projects.all(), [])
+
+        raise Exception('Unknown user type')
+
+    submissions = property(_get_submissions)
 
 
     # Object permissions
