@@ -60,7 +60,7 @@ class InternSerializer(BaseUserSerializer):
         super(InternSerializer, self).__init__(*args, **kwargs)
 
     def create(self, validated_data):
-        validated_data['user_type'] = User.USER_TYPE_INTERN
+        validated_data['user_type'] = UserTypes.INTERN
         return User.objects.create(validated_data)
 
     def update(self, instance, validated_data):
@@ -81,7 +81,7 @@ class OrgSerializer(BaseUserSerializer):
         super(OrgSerializer, self).__init__(*args, **kwargs)
 
     def create(self, validated_data):
-        validated_data['user_type'] = User.USER_TYPE_ORG
+        validated_data['user_type'] = UserTypes.ORG
         return User.objects.create(validated_data)
 
     def update(self, instance, validated_data):

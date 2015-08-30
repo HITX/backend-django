@@ -1,37 +1,35 @@
-def _checkAuth(request, auth_user_type):
+def checkAuth(request, user_type=None, scopes=None):
     user = request.user
-    token = request.auth
+    if not (user and user.is_authenticated()):
+        return False
 
-    if (user and token and
-        user.is_authenticated() and
-        token.is_valid(['read'])):
+    if user_type and (not user.is_type(user_type)):
+        return False
 
-        if (auth_user_type):
-            print 'Auth user type was set and checked!'
+    if scopes:
+        token = request.auth
+        if not (token and token.is_valid(scopes)):
+            return False
 
-        if (auth_user_type and
-            user.is_type(auth_user_type)):
-            return True
-
-    return False
+    return True
 
 
-class IsAuthenticated():
+class IsAuth(object):
 
     @staticmethod
-    def has_read_permission(request, auth_user_type=None):
-        return _checkAuth(request, auth_user_type)
+    def has_read_permission(request):
+        return checkAuth(request, scopes=['read'])
 
     @staticmethod
-    def has_write_permission(request, auth_user_type=None):
-        return _checkAuth(request, auth_user_type)
+    def has_write_permission(request):
+        return checkAuth(request, scopes=['write'])
 
-class IsAuthenticatedOrReadOnly(IsAuthenticated):
+class IsAuthOrReadOnly(IsAuth):
     @staticmethod
     def has_read_permission(request):
         return True
 
-class IsAuthenticatedOrReadOnlyAndCreate(IsAuthenticatedOrReadOnly):
+class IsAuthOrReadOnlyAndCreate(IsAuthOrReadOnly):
     @staticmethod
     def has_create_permission(request):
         return True
