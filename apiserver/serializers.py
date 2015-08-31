@@ -4,6 +4,7 @@ from django.core.validators import RegexValidator
 
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import Field
+from rest_framework.serializers import SerializerMethodField
 from rest_framework.validators import UniqueValidator
 from rest_framework.exceptions import NotFound
 
@@ -12,9 +13,12 @@ from apiserver.models import User
 from profiles.models import InternProfile, OrgProfile
 from profiles.serializers import InternProfileSerializer, OrgProfileSerializer
 
-from mixins.serializers import ErrorMessages
+from projects.serializers import SubmissionSerializer
 
-class BaseUserSerializer(ErrorMessages, ModelSerializer):
+from mixins.serializers import ErrorMessagesMixin, DynamicFieldsMixin
+
+
+class BaseUserSerializer(ErrorMessagesMixin, DynamicFieldsMixin, ModelSerializer):
     class Meta:
         abstract = True
         model = User
@@ -65,6 +69,7 @@ class InternSerializer(BaseUserSerializer):
 
     def update(self, instance, validated_data):
         if not instance.is_intern:
+            # TODO: change to custom invalid user type exception
             raise NotFound
 
         return User.objects.update(instance, validated_data)
@@ -86,9 +91,42 @@ class OrgSerializer(BaseUserSerializer):
 
     def update(self, instance, validated_data):
         if not instance.is_org:
+            # TODO: change to custom invalid user type exception
             raise NotFound
 
         return User.objects.update(instance, validated_data)
+
+class MeSerializer(DynamicFieldsMixin, ModelSerializer):
+    submissions = SubmissionSerializer(many=True)
+    profile = SerializerMethodField()
+    # settings
+
+    def get_profile(self, obj):
+        user = self.context['request'].user
+        if user.is_intern:
+            serializer = InternProfileSerializer
+        elif user.is_org:
+            serializer = OrgProfileSerializer
+        else:
+            raise Exception('Unknown user type')
+
+        return serializer(user.profile).data
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'username',
+            'email',
+            'user_type',
+            'submissions',
+            'profile'
+        )
+
+    # def __init__(self, *args, **kwargs):
+    #     print 'Testing:'
+    #     print args
+    #     print kwargs
 
 class GroupSerializer(ModelSerializer):
     class Meta:

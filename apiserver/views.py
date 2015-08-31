@@ -8,8 +8,12 @@ from rest_framework.exceptions import AuthenticationFailed, NotFound
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 
-from apiserver.serializers import InternSerializer, OrgSerializer, GroupSerializer
+from apiserver.serializers import InternSerializer, OrgSerializer, MeSerializer, GroupSerializer
 from apiserver.models import User
+
+from projects.serializers import ProjectSerializer, SubmissionSerializer
+
+from exceptions import InvalidUserType
 
 # from user_settings.serializers import UserSettingsSerializer
 
@@ -55,24 +59,31 @@ class MeViewSet(ViewSet):
     permission_classes = [permissions.IsAuthenticated, TokenHasScope]
 
     def retrieve(self, request):
+        serializer = MeSerializer(request.user, context={'request': request})
+        return Response(serializer.data)
+
+    @detail_route(methods=['get'])
+    def user(self, request):
         if request.user.is_intern:
             serializer = InternSerializer
         elif request.user.is_org:
             serializer = OrgSerializer
         else:
             raise Exception('Unknown user type')
+        return Response(serializer(request.user, context={'request': request}).data)
 
-        return Response(serializer(request.user).data)
+    @detail_route(methods=['get'])
+    def projects(self, request):
+        if not request.user.is_org:
+            raise InvalidUserType
+        serializer = ProjectSerializer(request.user.projects, many=True, context={'request': request})
+        return Response(serializer.data)
 
-    def update(self, request):
-        raise Exception('Not yet implemented')
+    @detail_route(methods=['get'])
+    def submissions(self, request):
+        serializer = SubmissionSerializer(request.user.submissions, many=True, context={'request': request})
+        return Response(serializer.data)
 
-    def partial_update(self, request):
-        raise Exception('Not yet implemented')
-
-    def destroy(self, request):
-        raise Exception('Not yet implemented')
-
-    @detail_route(methods=['get', 'post'], url_path='settings')
+    @detail_route(methods=['get'], url_path='settings')
     def user_settings(self, request):
         raise Exception('Not yet implemented')

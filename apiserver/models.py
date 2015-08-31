@@ -195,7 +195,6 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthOrReadOnlyAndCreate):
             return self.intern_submissions
         elif self.is_org:
             return Submission.objects.filter(project__owner=self)
-            # return reduce(lambda a,b: a + b.submissions.all(), self.projects.all(), [])
 
         raise Exception('Unknown user type')
 
