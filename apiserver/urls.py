@@ -1,10 +1,12 @@
 from django.conf.urls import include, url, patterns
 from rest_framework.routers import DefaultRouter
 
-from apiserver.routers import MeRouter
+from apiserver.routers import RetrieveRouter
 from apiserver.views import InternViewSet, OrgViewSet, GroupViewSet, MeViewSet
 # from user_settings.views import UserSettingsView
 from projects.views import ProjectViewSet, SubmissionViewSet
+
+from newsfeed.views import NewsfeedViewSet
 
 from django.contrib import admin
 admin.autodiscover()
@@ -17,12 +19,14 @@ router.register(r'groups', GroupViewSet)
 router.register(r'projects', ProjectViewSet)
 router.register(r'submissions', SubmissionViewSet)
 
-meRouter = MeRouter()
-meRouter.register(r'me', MeViewSet, base_name='me')
+retrieveRouter = RetrieveRouter()
+retrieveRouter.register(r'me', MeViewSet, base_name='me')
+retrieveRouter.register(r'newsfeed', NewsfeedViewSet)
+
 
 urlpatterns = patterns('',
     url(r'^', include(router.urls)),
-    url(r'^', include(meRouter.urls)),
+    url(r'^', include(retrieveRouter.urls)),
     # url(r'^settings/$', UserSettingsView.as_view()),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^accounts/', include(admin.site.urls)),
