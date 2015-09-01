@@ -15,7 +15,12 @@ class ProjectViewSet(ModelViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [DRYPermissions,]
 
+    def get_serializer(self, *args, **kwargs):
+        kwargs['expand'] = 'Test thingy here yay'
+        return super(ProjectViewSet, self).get_serializer(*args, **kwargs)
+
     def create(self, request):
+        # TODO: change this to get_serializer
         serializer = ProjectSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(owner=request.user)
@@ -47,7 +52,6 @@ class SubmissionViewSet(mixins.RetrieveModelMixin,
 
     @detail_route(methods=['post'])
     def accept(self, request, pk=None):
-        print 'Accepting...'
         return self._update_status(SubmissionStatus.ACCEPTED)
 
     @detail_route(methods=['post'])

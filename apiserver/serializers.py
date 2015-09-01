@@ -125,11 +125,6 @@ class MeSerializer(DynamicFieldsMixin, ModelSerializer):
             'profile'
         )
 
-    # def __init__(self, *args, **kwargs):
-    #     print 'Testing:'
-    #     print args
-    #     print kwargs
-
 class GroupSerializer(ModelSerializer):
     class Meta:
         model = Group

@@ -13,6 +13,5 @@ class NewsfeedViewSet(GenericViewSet):
     permission_classes = []
 
     def retrieve(self, request):
-        print self
         serializer = ProjectSerializer(self.get_queryset(), many=True)
         return Response(serializer.data)
