@@ -8,6 +8,8 @@ from rest_framework.serializers import SerializerMethodField
 from rest_framework.validators import UniqueValidator
 from rest_framework.exceptions import NotFound
 
+from constants import UserTypes
+
 from apiserver.models import User
 
 from profiles.models import InternProfile, OrgProfile
