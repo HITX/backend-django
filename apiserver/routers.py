@@ -1,15 +1,10 @@
 from rest_framework.routers import Route, DynamicDetailRoute, SimpleRouter
 
-class MeRouter(SimpleRouter):
+class RetrieveRouter(SimpleRouter):
     routes = [
         Route(
             url=r'^{prefix}{trailing_slash}$',
-            mapping={
-                'get': 'retrieve'
-                # 'put': 'update',
-                # 'patch': 'partial_update',
-                # 'delete': 'destroy'
-            },
+            mapping={'get': 'retrieve'},
             name='{basename}-detail',
             initkwargs={'suffix': 'Instance'}
         ),
