@@ -10,9 +10,9 @@ from projects.serializers import ProjectSerializer, SubmissionSerializer
 
 from common.constants import SubmissionStatus
 
-from common.views import ExpandableModelViewSet
+from common.views import DynamicModelViewSet
 
-class ProjectViewSet(ExpandableModelViewSet):
+class ProjectViewSet(DynamicModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [DRYPermissions,]

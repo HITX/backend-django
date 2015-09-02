@@ -1,5 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 
+from common.exceptions import ExpandException
+
 class ErrorMessagesMixin(object):
     def __init__(self, *args, **kwargs):
         messages = self.Meta.error_messages
@@ -32,6 +34,23 @@ class DynamicFieldsMixin(object):
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
 
+class FilterableFieldsMixin(object):
+    def __init__(self, *args, **kwargs):
+        filter_desired = kwargs.pop('filter', None)
+
+        super(FilterableFieldsMixin, self).__init__(*args, **kwargs)
+
+        if filter_desired:
+            desired = set(filter_desired.split(','))
+            available = set(self.fields.keys())
+
+            bad_fields = desired - available
+            if bool(bad_fields):
+                raise FilterException('Filter not available for fields: ' + ','.join(bad_fields))
+
+            for field_name in available - desired:
+                self.fields.pop(field_name)
+
 class ExpandableFieldsMixin(object):
     def __init__(self, *args, **kwargs):
         expand_desired = kwargs.pop('expand', None)
@@ -40,7 +59,7 @@ class ExpandableFieldsMixin(object):
         super(ExpandableFieldsMixin, self).__init__(*args, **kwargs)
 
         if not expand_available:
-            if expand_desired: raise Exception('Expand not available')
+            if expand_desired: raise ExpandException('Expand not available')
             return
 
         if expand_desired:
@@ -49,7 +68,7 @@ class ExpandableFieldsMixin(object):
 
             bad_fields = desired_set - available_set
             if bool(bad_fields):
-                raise Exception('Expand not available for fields: ' + ','.join(bad_fields))
+                raise ExpandException('Expand not available for fields: ' + ','.join(bad_fields))
 
             undesired = []
             for field_name in set(expand_available.keys()) - set(expand_desired.split(',')):
@@ -60,7 +79,6 @@ class ExpandableFieldsMixin(object):
             self.fields.update({k: v() for k,v in expand_available.items()})
         else:
             self.Meta.fields += tuple(expand_available.keys())
-            print 'No expansion desired'
 
-class ExpandableModelSerializer(ExpandableFieldsMixin, ModelSerializer):
+class DynamicModelSerializer(FilterableFieldsMixin, ExpandableFieldsMixin, ModelSerializer):
     pass

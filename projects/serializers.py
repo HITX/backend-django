@@ -3,9 +3,9 @@ from projects.models import Project, Submission
 
 from apiserver.serializers import OrgSerializer
 
-from common.serializers import ExpandableModelSerializer
+from common.serializers import DynamicModelSerializer
 
-class ProjectSerializer(ExpandableModelSerializer):
+class ProjectSerializer(DynamicModelSerializer):
     class Meta:
         model = Project
         fields = (
