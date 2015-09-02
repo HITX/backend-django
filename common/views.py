@@ -1,4 +1,4 @@
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 class FilterableViewMixin(object):
     def get_serializer(self, *args, **kwargs):
@@ -13,4 +13,7 @@ class ExpandableViewMixin(object):
         return super(ExpandableViewMixin, self).get_serializer(*args, **kwargs)
 
 class DynamicModelViewSet(FilterableViewMixin, ExpandableViewMixin, ModelViewSet):
+    pass
+
+class DynamicGenericViewSet(FilterableViewMixin, ExpandableViewMixin, GenericViewSet):
     pass
