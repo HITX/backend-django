@@ -13,10 +13,10 @@ from apiserver.models import User
 from profiles.models import InternProfile, OrgProfile
 from profiles.serializers import InternProfileSerializer, OrgProfileSerializer
 
-from common.serializers import ErrorMessagesMixin, DynamicFieldsMixin
+from common.serializers import ErrorMessagesMixin
 
 
-class BaseUserSerializer(ErrorMessagesMixin, DynamicFieldsMixin, ModelSerializer):
+class BaseUserSerializer(ErrorMessagesMixin, ModelSerializer):
     class Meta:
         abstract = True
         model = User

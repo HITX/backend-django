@@ -22,17 +22,6 @@ class ErrorMessagesMixin(object):
 
         super(ErrorMessagesMixin, self).__init__(*args, **kwargs)
 
-class DynamicFieldsMixin(object):
-    def __init__(self, *args, **kwargs):
-        super(DynamicFieldsMixin, self).__init__(*args, **kwargs)
-        if not self.context: return
-        fields = self.context['request'].query_params.get('fields', None)
-        if fields:
-            fields = fields.split(',')
-            allowed = set(fields)
-            existing = set(self.fields.keys())
-            for field_name in existing - allowed:
-                self.fields.pop(field_name)
 
 class FilterableFieldsMixin(object):
     def __init__(self, *args, **kwargs):
@@ -50,6 +39,7 @@ class FilterableFieldsMixin(object):
 
             for field_name in available - desired:
                 self.fields.pop(field_name)
+
 
 class ExpandableFieldsMixin(object):
     def __init__(self, *args, **kwargs):
@@ -79,6 +69,7 @@ class ExpandableFieldsMixin(object):
             self.fields.update({k: v() for k,v in expand_available.items()})
         else:
             self.Meta.fields += tuple(expand_available.keys())
+
 
 class DynamicModelSerializer(FilterableFieldsMixin, ExpandableFieldsMixin, ModelSerializer):
     pass
