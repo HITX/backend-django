@@ -8,9 +8,9 @@ from dry_rest_permissions.generics import DRYPermissions
 from projects.models import Project, Submission
 from projects.serializers import ProjectSerializer, SubmissionSerializer
 
-from constants import SubmissionStatus
+from common.constants import SubmissionStatus
 
-from mixins.serializers import ExpandableModelViewSet
+from common.views import ExpandableModelViewSet
 
 class ProjectViewSet(ExpandableModelViewSet):
     queryset = Project.objects.all()

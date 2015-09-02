@@ -5,7 +5,7 @@ from rest_framework.decorators import detail_route
 
 from oauth2_provider.ext.rest_framework import TokenHasScope
 
-from apiserver.exceptions import InvalidUserType
+from common.exceptions import InvalidUserType
 
 from me.serializers import MeSerializer
 from apiserver.serializers import InternSerializer, OrgSerializer

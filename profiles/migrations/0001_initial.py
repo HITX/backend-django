@@ -16,7 +16,8 @@ class Migration(migrations.Migration):
             name='InternProfile',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('data', models.CharField(default=b'intern profile data', max_length=256)),
+                ('first_name', models.CharField(max_length=50, blank=True)),
+                ('last_name', models.CharField(max_length=50, blank=True)),
                 ('user', models.OneToOneField(related_name='intern_profile', to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -27,7 +28,7 @@ class Migration(migrations.Migration):
             name='OrgProfile',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('data', models.CharField(default=b'org profile data', max_length=256)),
+                ('org_name', models.CharField(max_length=50, blank=True)),
                 ('user', models.OneToOneField(related_name='org_profile', to=settings.AUTH_USER_MODEL)),
             ],
             options={

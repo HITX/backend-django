@@ -1,7 +1,7 @@
 from django.conf.urls import include, url, patterns
 from rest_framework.routers import DefaultRouter
 
-from apiserver.routers import RetrieveRouter
+from common.routers import RetrieveRouter
 from apiserver.views import InternViewSet, OrgViewSet, GroupViewSet
 from me.views import MeViewSet
 # from user_settings.views import UserSettingsView

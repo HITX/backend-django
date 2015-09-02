@@ -6,14 +6,14 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.validators import UniqueValidator
 from rest_framework.exceptions import NotFound
 
-from constants import UserTypes
+from common.constants import UserTypes
 
 from apiserver.models import User
 
 from profiles.models import InternProfile, OrgProfile
 from profiles.serializers import InternProfileSerializer, OrgProfileSerializer
 
-from mixins.serializers import ErrorMessagesMixin, DynamicFieldsMixin
+from common.serializers import ErrorMessagesMixin, DynamicFieldsMixin
 
 
 class BaseUserSerializer(ErrorMessagesMixin, DynamicFieldsMixin, ModelSerializer):

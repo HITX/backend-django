@@ -1,9 +1,9 @@
 from django.db import models
 from django.conf import settings
 
-from constants import UserTypes, SubmissionStatus
+from common.constants import UserTypes, SubmissionStatus
 
-from mixins.models import permissions
+from common import permissions
 
 class Project(models.Model, permissions.IsAuthOrReadOnly):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owned_projects')

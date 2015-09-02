@@ -3,7 +3,7 @@ from projects.models import Project, Submission
 
 from apiserver.serializers import OrgSerializer
 
-from mixins.serializers import ExpandableModelSerializer
+from common.serializers import ExpandableModelSerializer
 
 class ProjectSerializer(ExpandableModelSerializer):
     class Meta:

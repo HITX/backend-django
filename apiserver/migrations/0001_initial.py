@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import django.utils.timezone
 import django.core.validators
-import mixins.models.permissions
+import common.permissions
 
 
 class Migration(migrations.Migration):
@@ -33,6 +33,6 @@ class Migration(migrations.Migration):
             options={
                 'db_table': 'auth_user',
             },
-            bases=(models.Model, mixins.models.permissions.IsAuthOrReadOnlyAndCreate),
+            bases=(models.Model, common.permissions.IsAuthOrReadOnlyAndCreate),
         ),
     ]

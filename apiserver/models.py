@@ -7,9 +7,9 @@ from profiles.models import InternProfile, OrgProfile
 from projects.models import Submission
 from user_settings.models import UserSettings
 
-from mixins.models.permissions import IsAuthOrReadOnlyAndCreate
+from common.permissions import IsAuthOrReadOnlyAndCreate
 
-from constants import UserTypes
+from common.constants import UserTypes
 
 class UserManager(BaseUserManager):
     def create(self, validated_data):
