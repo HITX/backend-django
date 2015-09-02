@@ -1,25 +1,20 @@
 from rest_framework.serializers import ModelSerializer
 from projects.models import Project, Submission
 
-# from apiserver.serializers import OrgSerializer
+from apiserver.serializers import OrgSerializer
 
-class ProjectSerializer(ModelSerializer):
-    # owner = OrgSerializer(required=False)
+from mixins.serializers import ExpandableModelSerializer
 
+class ProjectSerializer(ExpandableModelSerializer):
     class Meta:
         model = Project
         fields = (
             'id',
-            'owner',
             'title',
             'description'
         )
+        expandable_fields = {'owner': OrgSerializer}
         read_only_fields = ('owner',)
-
-    def __init__(self, *args, **kwargs):
-        expand = kwargs.pop('expand', None)
-        print expand
-        super(ProjectSerializer, self).__init__(*args, **kwargs)
 
 class SubmissionSerializer(ModelSerializer):
     project = ProjectSerializer()

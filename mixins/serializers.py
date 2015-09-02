@@ -1,3 +1,6 @@
+from rest_framework.serializers import ModelSerializer
+from rest_framework.viewsets import ModelViewSet
+
 class ErrorMessagesMixin(object):
     def __init__(self, *args, **kwargs):
         messages = self.Meta.error_messages
@@ -29,3 +32,46 @@ class DynamicFieldsMixin(object):
             existing = set(self.fields.keys())
             for field_name in existing - allowed:
                 self.fields.pop(field_name)
+
+class ExpandableFieldsMixin(object):
+    def __init__(self, *args, **kwargs):
+        expand_desired = kwargs.pop('expand', None)
+        expand_available = self.Meta.expandable_fields
+
+        super(ExpandableFieldsMixin, self).__init__(*args, **kwargs)
+
+        if not expand_available:
+            if expand_desired: raise Exception('Expand not available')
+            return
+
+        if expand_desired:
+            desired_set = set(expand_desired.split(','))
+            available_set = set(expand_available.keys())
+
+            bad_fields = desired_set - available_set
+            if bool(bad_fields):
+                raise Exception('Expand not available for fields: ' + ','.join(bad_fields))
+
+            undesired = []
+            for field_name in set(expand_available.keys()) - set(expand_desired.split(',')):
+                expand_available.pop(field_name)
+                undesired.append(field_name)
+
+            self.Meta.fields += tuple(undesired)
+            self.fields.update({k: v() for k,v in expand_available.items()})
+        else:
+            self.Meta.fields += tuple(expand_available.keys())
+            print 'No expansion desired'
+
+class ExpandableModelSerializer(ExpandableFieldsMixin, ModelSerializer):
+    pass
+
+class ExpandableViewMixin(object):
+    def get_serializer(self, *args, **kwargs):
+        expand_params = self.request.query_params.get('expand', None)
+        if expand_params:
+            kwargs['expand'] = expand_params
+        return super(ExpandableViewMixin, self).get_serializer(*args, **kwargs)
+
+class ExpandableModelViewSet(ExpandableViewMixin, ModelViewSet):
+    pass

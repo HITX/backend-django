@@ -10,14 +10,12 @@ from projects.serializers import ProjectSerializer, SubmissionSerializer
 
 from constants import SubmissionStatus
 
-class ProjectViewSet(ModelViewSet):
+from mixins.serializers import ExpandableModelViewSet
+
+class ProjectViewSet(ExpandableModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [DRYPermissions,]
-
-    def get_serializer(self, *args, **kwargs):
-        kwargs['expand'] = 'Test thingy here yay'
-        return super(ProjectViewSet, self).get_serializer(*args, **kwargs)
 
     def create(self, request):
         # TODO: change this to get_serializer
