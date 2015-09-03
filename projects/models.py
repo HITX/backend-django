@@ -1,16 +1,25 @@
 from django.db import models
 from django.conf import settings
 
-from common.constants import UserTypes, SubmissionStatus
+from django.utils import timezone
 
+from common.constants import UserTypes, SubmissionStatus
+from common.fields import CurrencyField
 from common import permissions
 
+def _default_end_date():
+    return timezone.now() + timezone.timedelta(days=30)
+
 class Project(models.Model, permissions.IsAuthOrReadOnly):
+
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owned_projects')
     submitters = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Submission', related_name='submitted_projects')
     title = models.CharField(max_length=256, default='Project Title')
-    description = models.TextField(max_length=1024, default='Project description and so on...')
-
+    description = models.TextField(max_length=1024, default='Project description')
+    prize = CurrencyField(default=1000)
+    created_date = models.DateTimeField(auto_now_add=True)
+    start_date = models.DateTimeField(default=timezone.now)
+    end_date = models.DateTimeField(default=_default_end_date)
 
     # Class permissions
     @staticmethod
