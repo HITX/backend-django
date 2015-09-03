@@ -1,26 +1,16 @@
-from rest_framework.serializers import ModelSerializer
-from rest_framework.serializers import SerializerMethodField
-
 from apiserver.models import User
 
 from profiles.serializers import InternProfileSerializer, OrgProfileSerializer
 from projects.serializers import SubmissionSerializer
 
-class MeSerializer(ModelSerializer):
-    submissions = SubmissionSerializer(many=True)
-    profile = SerializerMethodField()
+from common.serializers import DynamicModelSerializer, ExpandableFieldInfo
+from common.exceptions import InvalidUserType
+
+from rest_framework.serializers import PrimaryKeyRelatedField
+
+class MeSerializer(DynamicModelSerializer):
+    submissions = PrimaryKeyRelatedField(many=True, read_only=True)
     # settings
-
-    def get_profile(self, obj):
-        user = self.context['request'].user
-        if user.is_intern:
-            serializer = InternProfileSerializer
-        elif user.is_org:
-            serializer = OrgProfileSerializer
-        else:
-            raise Exception('Unknown user type')
-
-        return serializer(user.profile).data
 
     class Meta:
         model = User
@@ -29,6 +19,25 @@ class MeSerializer(ModelSerializer):
             'username',
             'email',
             'user_type',
-            'submissions',
-            'profile'
         )
+        expandable_fields = {
+            'submissions': ExpandableFieldInfo(
+                serializer=SubmissionSerializer,
+                kwargs={'many': True}
+            )
+        }
+
+    def __init__(self, *args, **kwargs):
+        # Need to update fields before super(), must use raw context from
+        # kwargs, not self.context() helper
+        user = kwargs['context']['request'].user
+        if user.is_intern:
+            serializer = InternProfileSerializer
+        elif user.is_org:
+            serializer = OrgProfileSerializer
+        else:
+            raise Exception('Unknown user type')
+
+        setattr(self.Meta, 'inline_fields', {'profile': serializer})
+
+        super(MeSerializer, self).__init__(*args, **kwargs)

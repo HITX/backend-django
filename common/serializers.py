@@ -1,6 +1,8 @@
+from collections import namedtuple
+
 from rest_framework.serializers import ModelSerializer
 
-from common.exceptions import ExpandException
+from common.exceptions import ExpandException, FilterException
 
 class ErrorMessagesMixin(object):
     def __init__(self, *args, **kwargs):
@@ -23,6 +25,20 @@ class ErrorMessagesMixin(object):
         super(ErrorMessagesMixin, self).__init__(*args, **kwargs)
 
 
+class InlineFieldsMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(InlineFieldsMixin, self).__init__(*args, **kwargs)
+
+        inline_fields = getattr(self.Meta, 'inline_fields', None)
+        if inline_fields:
+            for field_name in set(inline_fields.keys()):
+                related_fields = inline_fields[field_name]().fields
+                for related_field_name in related_fields:
+                    new_field = related_fields[related_field_name]
+                    new_field.source = field_name + '.' + new_field.source
+                    self.fields[related_field_name] = new_field
+
+
 class FilterableFieldsMixin(object):
     def __init__(self, *args, **kwargs):
         filter_desired = kwargs.pop('filter', None)
@@ -41,16 +57,22 @@ class FilterableFieldsMixin(object):
                 self.fields.pop(field_name)
 
 
+
+ExpandableFieldInfo = namedtuple('ExpandableFieldInfo', 'serializer kwargs')
+
 class ExpandableFieldsMixin(object):
     def __init__(self, *args, **kwargs):
         expand_desired = kwargs.pop('expand', None)
-        expand_available = self.Meta.expandable_fields
 
         super(ExpandableFieldsMixin, self).__init__(*args, **kwargs)
 
+        expand_available = getattr(self.Meta, 'expandable_fields', None)
+
         if not expand_available:
-            if expand_desired: raise ExpandException('Expand not available')
+            if expand_desired: raise ExpandException('Expand not available for this endpoint')
             return
+
+        self.Meta.fields += tuple(expand_available.keys())
 
         if expand_desired:
             desired_set = set(expand_desired.split(','))
@@ -60,16 +82,12 @@ class ExpandableFieldsMixin(object):
             if bool(bad_fields):
                 raise ExpandException('Expand not available for fields: ' + ','.join(bad_fields))
 
-            undesired = []
-            for field_name in set(expand_available.keys()) - set(expand_desired.split(',')):
+            for field_name in available_set - desired_set:
                 expand_available.pop(field_name)
-                undesired.append(field_name)
 
-            self.Meta.fields += tuple(undesired)
-            self.fields.update({k: v() for k,v in expand_available.items()})
-        else:
-            self.Meta.fields += tuple(expand_available.keys())
+            self.fields.update({k: v.serializer(**v.kwargs) for k,v in expand_available.items()})
 
 
-class DynamicModelSerializer(FilterableFieldsMixin, ExpandableFieldsMixin, ModelSerializer):
+# Mixin order is important!
+class DynamicModelSerializer(FilterableFieldsMixin, InlineFieldsMixin, ExpandableFieldsMixin, ModelSerializer):
     pass

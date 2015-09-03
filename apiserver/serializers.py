@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group
 
 from django.core.validators import RegexValidator
 
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, CharField
 from rest_framework.validators import UniqueValidator
 from rest_framework.exceptions import NotFound
 
@@ -13,10 +13,10 @@ from apiserver.models import User
 from profiles.models import InternProfile, OrgProfile
 from profiles.serializers import InternProfileSerializer, OrgProfileSerializer
 
-from common.serializers import ErrorMessagesMixin
+from common.serializers import ErrorMessagesMixin, DynamicModelSerializer
 
 
-class BaseUserSerializer(ErrorMessagesMixin, ModelSerializer):
+class BaseUserSerializer(ErrorMessagesMixin, DynamicModelSerializer):
     class Meta:
         abstract = True
         model = User
@@ -52,14 +52,8 @@ class BaseUserSerializer(ErrorMessagesMixin, ModelSerializer):
 # TODO: Parameterize the serializer to use and pass it into the base's init
 
 class InternSerializer(BaseUserSerializer):
-    profile = InternProfileSerializer(required=False)
-
     class Meta(BaseUserSerializer.Meta):
-        fields = ('profile',)
-
-    def __init__(self, *args, **kwargs):
-        self.Meta.fields += super(InternSerializer, self).Meta.fields
-        super(InternSerializer, self).__init__(*args, **kwargs)
+        inline_fields = {'profile': InternProfileSerializer}
 
     def create(self, validated_data):
         validated_data['user_type'] = UserTypes.INTERN
@@ -69,19 +63,12 @@ class InternSerializer(BaseUserSerializer):
         if not instance.is_intern:
             # TODO: change to custom invalid user type exception
             raise NotFound
-
         return User.objects.update(instance, validated_data)
 
 
 class OrgSerializer(BaseUserSerializer):
-    profile = OrgProfileSerializer(required=False)
-
     class Meta(BaseUserSerializer.Meta):
-        fields = ('profile',)
-
-    def __init__(self, *args, **kwargs):
-        self.Meta.fields += super(OrgSerializer, self).Meta.fields
-        super(OrgSerializer, self).__init__(*args, **kwargs)
+        inline_fields = {'profile': OrgProfileSerializer}
 
     def create(self, validated_data):
         validated_data['user_type'] = UserTypes.ORG
@@ -91,7 +78,6 @@ class OrgSerializer(BaseUserSerializer):
         if not instance.is_org:
             # TODO: change to custom invalid user type exception
             raise NotFound
-
         return User.objects.update(instance, validated_data)
 
 

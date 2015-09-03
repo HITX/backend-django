@@ -3,7 +3,7 @@ from projects.models import Project, Submission
 
 from apiserver.serializers import OrgSerializer
 
-from common.serializers import DynamicModelSerializer
+from common.serializers import DynamicModelSerializer, ExpandableFieldInfo
 
 class ProjectSerializer(DynamicModelSerializer):
     class Meta:
@@ -13,7 +13,12 @@ class ProjectSerializer(DynamicModelSerializer):
             'title',
             'description'
         )
-        expandable_fields = {'owner': OrgSerializer}
+        expandable_fields = {
+            'owner': ExpandableFieldInfo(
+                serializer=OrgSerializer,
+                kwargs={'read_only': True}
+            )
+        }
         read_only_fields = ('owner',)
 
 class SubmissionSerializer(ModelSerializer):

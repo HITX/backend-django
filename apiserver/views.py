@@ -11,12 +11,14 @@ from apiserver.models import User
 
 from dry_rest_permissions.generics import DRYPermissions
 
-class InternViewSet(ModelViewSet):
+from common.views import DynamicModelViewSet
+
+class InternViewSet(DynamicModelViewSet):
     queryset = User.objects.interns
     serializer_class = InternSerializer
     permission_classes = [DRYPermissions,]
 
-class OrgViewSet(ModelViewSet):
+class OrgViewSet(DynamicModelViewSet):
     queryset = User.objects.orgs
     serializer_class = OrgSerializer
     permission_classes = [DRYPermissions,]
