@@ -1,9 +1,9 @@
-from rest_framework.serializers import ModelSerializer, IntegerField, DateTimeField
+from rest_framework.serializers import ModelSerializer, IntegerField, DateTimeField, PrimaryKeyRelatedField
 from projects.models import Project, Submission
 
-from apiserver.serializers import OrgSerializer
+from apiserver.serializers import InternSerializer, OrgSerializer
 
-from common.serializers import DynamicModelSerializer, ExpandableFieldInfo
+from common.serializers import DynamicModelSerializer, ExpandableInfo
 
 class ProjectSerializer(DynamicModelSerializer):
     submission_count = IntegerField(source='submissions.count')
@@ -21,10 +21,7 @@ class ProjectSerializer(DynamicModelSerializer):
             'end_date'
         )
         expandable_fields = {
-            'owner': ExpandableFieldInfo(
-                serializer=OrgSerializer,
-                kwargs={'read_only': True}
-            )
+            'owner': ExpandableInfo(OrgSerializer, read_only=True)
         }
         read_only_fields = ('owner',)
         extra_kwargs = {
@@ -33,14 +30,17 @@ class ProjectSerializer(DynamicModelSerializer):
             'end_date': {'format': '%b %d'}
         }
 
-class SubmissionSerializer(ModelSerializer):
-    project = ProjectSerializer()
+class SubmissionSerializer(DynamicModelSerializer):
+    project = PrimaryKeyRelatedField(read_only=True)
+    submitter = PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Submission
         fields = (
             'id',
-            'submitter',
             'status',
-            'project'
         )
+        expandable_fields = {
+            'project': ExpandableInfo(ProjectSerializer),
+            'submitter': ExpandableInfo(InternSerializer)
+        }

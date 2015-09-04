@@ -57,8 +57,29 @@ class FilterableFieldsMixin(object):
                 self.fields.pop(field_name)
 
 
+class ExpandableInfo(object):
+    def __init__(self, serializer, **kwargs):
+        self.serializer = serializer
+        self.serializer_kwargs = kwargs
 
-ExpandableFieldInfo = namedtuple('ExpandableFieldInfo', 'serializer kwargs')
+    def get_serializer_instance(self, **kwargs):
+        tmp = self.serializer_kwargs.copy()
+        tmp.update(kwargs)
+        return self.serializer(**tmp)
+
+def _deserialize_expand_helper(prev, cur):
+    if '.' in cur:
+        tmp = cur.split('.', 1)
+        if tmp[0] in prev:
+            prev[tmp[0]] += (',' + tmp[1])
+        else:
+            prev[tmp[0]] = tmp[1]
+    else:
+        prev[cur] = None
+    return prev
+
+def _deserialize_expand_params(params_string):
+    return reduce(_deserialize_expand_helper, params_string.split(','), {})
 
 class ExpandableFieldsMixin(object):
     def __init__(self, *args, **kwargs):
@@ -69,23 +90,26 @@ class ExpandableFieldsMixin(object):
         expand_available = getattr(self.Meta, 'expandable_fields', None)
 
         if not expand_available:
-            if expand_desired: raise ExpandException('Expand not available for this endpoint')
+            if expand_desired: raise ExpandException('Expand not available')
             return
 
         self.Meta.fields += tuple(expand_available.keys())
 
         if expand_desired:
-            desired_set = set(expand_desired.split(','))
+            expand_desired = _deserialize_expand_params(expand_desired)
+
+            desired_set = set(expand_desired.keys())
             available_set = set(expand_available.keys())
 
             bad_fields = desired_set - available_set
             if bool(bad_fields):
                 raise ExpandException('Expand not available for fields: ' + ','.join(bad_fields))
 
-            for field_name in available_set - desired_set:
-                expand_available.pop(field_name)
-
-            self.fields.update({k: v.serializer(**v.kwargs) for k,v in expand_available.items()})
+            for field_name in desired_set:
+                self.fields[field_name] = (
+                    expand_available[field_name]
+                    .get_serializer_instance(expand=expand_desired[field_name])
+                )
 
 
 # Mixin order is important!

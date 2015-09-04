@@ -3,7 +3,7 @@ from apiserver.models import User
 from profiles.serializers import InternProfileSerializer, OrgProfileSerializer
 from projects.serializers import SubmissionSerializer
 
-from common.serializers import DynamicModelSerializer, ExpandableFieldInfo
+from common.serializers import DynamicModelSerializer, ExpandableInfo
 from common.exceptions import InvalidUserType
 
 from rest_framework.serializers import PrimaryKeyRelatedField
@@ -21,10 +21,10 @@ class MeSerializer(DynamicModelSerializer):
             'user_type',
         )
         expandable_fields = {
-            'submissions': ExpandableFieldInfo(
-                serializer=SubmissionSerializer,
-                kwargs={'many': True}
-            )
+            'submissions': ExpandableInfo(SubmissionSerializer, many=True)
+                # serializer=SubmissionSerializer,
+                # kwargs={'many': True}
+            # )
         }
 
     def __init__(self, *args, **kwargs):
