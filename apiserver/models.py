@@ -168,10 +168,8 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthOrReadOnlyAndCreate):
 
     # Profile helpers
     def _get_profile(self):
-        # if self.user_type == self.USER_TYPE_INTERN:
         if self.is_intern:
             return self.intern_profile
-        # elif self.user_type == self.USER_TYPE_ORG:
         elif self.is_org:
             return self.org_profile
         raise Exception('Unknown user type')
