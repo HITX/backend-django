@@ -44,15 +44,8 @@ class MeSerializer(MeDynamicModelSerializer):
         user = kwargs['context']['request'].user
         if user.is_intern:
             serializer = InternProfileSerializer
-
-            # Disallow interns from expanding projects
-            # raise ExpandException('Expand not available for fields: projects')
-
         elif user.is_org:
             serializer = OrgProfileSerializer
-
-            # self.Meta.expandable_fields['projects'] = ExpandableInfo(ProjectSerializer, many=True)
-
         else:
             raise Exception('Unknown user type')
 

@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     'oauth2_provider',
     'corsheaders',
     'dry_rest_permissions',
+    'debug_toolbar',
 
     'projects',
     'profiles',
