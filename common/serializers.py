@@ -93,7 +93,11 @@ class ExpandableFieldsMixin(object):
             if expand_desired: raise ExpandException('Expand not available')
             return
 
-        self.Meta.fields += tuple(expand_available.keys())
+        # Disabling adding these at runtime, now require Meta fields to also
+        # include fields described in expandable fields
+        # (Would have been "cached" in the Meta object instance after the first
+        #  run anyway)
+        # self.Meta.fields += tuple(expand_available.keys())
 
         if expand_desired:
             expand_desired = _deserialize_expand_params(expand_desired)
@@ -111,7 +115,24 @@ class ExpandableFieldsMixin(object):
                     .get_serializer_instance(expand=expand_desired[field_name])
                 )
 
-
 # Mixin order is important!
 class DynamicModelSerializer(FilterableFieldsMixin, InlineFieldsMixin, ExpandableFieldsMixin, ModelSerializer):
+    pass
+
+
+
+
+class MeExpandableFieldsMixin(ExpandableFieldsMixin):
+    def __init__(self, *args, **kwargs):
+        user = kwargs['context']['request'].user
+        if user.is_intern:
+            expand_desired = kwargs.get('expand')
+            if expand_desired:
+                expand_desired = _deserialize_expand_params(expand_desired)
+                if 'projects' in expand_desired:
+                    raise ExpandException('Expand not available for fields: projects')
+
+        super(MeExpandableFieldsMixin, self).__init__(*args, **kwargs)
+
+class MeDynamicModelSerializer(FilterableFieldsMixin, InlineFieldsMixin, MeExpandableFieldsMixin, ModelSerializer):
     pass

@@ -18,7 +18,8 @@ class ProjectSerializer(DynamicModelSerializer):
             'prize',
             'created_date',
             'start_date',
-            'end_date'
+            'end_date',
+            'owner'
         )
         expandable_fields = {
             'owner': ExpandableInfo(OrgSerializer, read_only=True)
@@ -39,6 +40,8 @@ class SubmissionSerializer(DynamicModelSerializer):
         fields = (
             'id',
             'status',
+            'project',
+            'submitter'
         )
         expandable_fields = {
             'project': ExpandableInfo(ProjectSerializer),
