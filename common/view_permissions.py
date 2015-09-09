@@ -7,7 +7,7 @@ class DebugTokenHasScope(TokenHasScope):
             return True
 
         # Otherwise behave as per normal
-        super(DebugTokenHasScope, self).has_permission(request, view)
+        return super(DebugTokenHasScope, self).has_permission(request, view)
 
 
 
@@ -18,4 +18,4 @@ class DebugTokenHasReadWriteScope(TokenHasReadWriteScope):
             return True
 
         # Otherwise behave as per normal
-        super(DebugTokenHasReadWriteScope, self).has_permission(request, view)
+        return super(DebugTokenHasReadWriteScope, self).has_permission(request, view)
