@@ -4,24 +4,14 @@ from projects.models import Project
 from profiles.serializers import InternProfileSerializer, OrgProfileSerializer
 from projects.serializers import SubmissionSerializer, ProjectSerializer
 
-from common.serializers import MeDynamicModelSerializer, ExpandableInfo
+from common.serializers import DynamicModelSerializer, ExpandableInfo
 from common.exceptions import InvalidUserType, InternalUserTypeError
 
 from rest_framework.serializers import PrimaryKeyRelatedField, SerializerMethodField
 
-class MeSerializer(MeDynamicModelSerializer):
+class MeSerializer(DynamicModelSerializer):
     submissions = PrimaryKeyRelatedField(many=True, read_only=True)
-    projects = SerializerMethodField()
-    # settings
-
-    def get_projects(self, obj):
-        user = self.context['request'].user
-        if user.is_intern:
-            return None
-        elif user.is_org:
-            return user.projects.values_list('id', flat=True).order_by('id')
-        else:
-            raise InternalUserTypeError
+    projects = PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = User
@@ -49,8 +39,12 @@ class MeSerializer(MeDynamicModelSerializer):
         else:
             raise Exception('Unknown user type')
 
+        # Add appropriate profile given user type
         setattr(self.Meta, 'inline_fields', {'profile': serializer})
 
         super(MeSerializer, self).__init__(*args, **kwargs)
 
-        # print self.fields
+        # Remove projects from response for interns, they're already available
+        # nested in submissions
+        if user.is_intern:
+            self.fields.pop('projects')

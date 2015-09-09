@@ -1,8 +1,12 @@
+from django.conf import settings
+if settings.DEBUG:
+    from common.view_permissions import DebugTokenHasScope as TokenHasScope
+else:
+    from oauth2_provider.ext.rest_framework import TokenHasScope
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
-
-from oauth2_provider.ext.rest_framework import TokenHasScope
 
 from common.exceptions import InvalidUserType
 from common.views import DynamicGenericViewSet

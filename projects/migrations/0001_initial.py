@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 from django.conf import settings
-import common.permissions
+import common.model_permissions
 
 
 class Migration(migrations.Migration):
@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(default=b'Project description and so on...', max_length=1024)),
                 ('owner', models.ForeignKey(related_name='owned_projects', to=settings.AUTH_USER_MODEL)),
             ],
-            bases=(models.Model, common.permissions.IsAuthOrReadOnly),
+            bases=(models.Model, common.model_permissions.IsAuthOrReadOnly),
         ),
         migrations.CreateModel(
             name='Submission',
@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('project', models.ForeignKey(related_name='submissions', to='projects.Project')),
                 ('submitter', models.ForeignKey(related_name='intern_submissions', to=settings.AUTH_USER_MODEL)),
             ],
-            bases=(models.Model, common.permissions.IsAuth),
+            bases=(models.Model, common.model_permissions.IsAuth),
         ),
         migrations.AddField(
             model_name='project',

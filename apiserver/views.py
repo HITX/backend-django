@@ -1,6 +1,10 @@
-from django.contrib.auth.models import Group
+from django.conf import settings
+if settings.DEBUG:
+    from common.view_permissions import DebugTokenHasScope as TokenHasScope
+else:
+    from oauth2_provider.ext.rest_framework import TokenHasScope
 
-from oauth2_provider.ext.rest_framework import TokenHasScope
+from django.contrib.auth.models import Group
 
 from rest_framework import permissions
 from rest_framework.viewsets import ModelViewSet

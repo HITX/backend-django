@@ -7,7 +7,7 @@ from profiles.models import InternProfile, OrgProfile
 from projects.models import Submission
 from user_settings.models import UserSettings
 
-from common.permissions import IsAuthOrReadOnlyAndCreate
+from common.model_permissions import IsAuthOrReadOnlyAndCreate
 
 from common.constants import UserTypes
 

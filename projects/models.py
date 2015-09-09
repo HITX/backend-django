@@ -5,12 +5,12 @@ from django.utils import timezone
 
 from common.constants import UserTypes, SubmissionStatus
 from common.fields import CurrencyField
-from common import permissions
+from common import model_permissions
 
 def _default_end_date():
     return timezone.now() + timezone.timedelta(days=30)
 
-class Project(models.Model, permissions.IsAuthOrReadOnly):
+class Project(models.Model, model_permissions.IsAuthOrReadOnly):
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owned_projects')
     submitters = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Submission', related_name='submitted_projects')
@@ -50,7 +50,7 @@ class SubmissionManager(models.Manager):
             submission.save()
         return submission
 
-class Submission(models.Model, permissions.IsAuth):
+class Submission(models.Model, model_permissions.IsAuth):
     submitter = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='intern_submissions')
     project = models.ForeignKey(Project, related_name='submissions')
     status = models.IntegerField(choices = SubmissionStatus.CHOICES, default=SubmissionStatus.REGISTERED)
