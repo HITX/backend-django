@@ -44,7 +44,9 @@ class MeSerializer(DynamicModelSerializer):
 
         super(MeSerializer, self).__init__(*args, **kwargs)
 
-        # Remove projects from response for interns, they're already available
-        # nested in submissions
+        # Remove projects from response for interns
+        # and submissions for response for orgs
         if user.is_intern:
             self.fields.pop('projects')
+        elif user.is_org:
+            self.fields.pop('submissions')
