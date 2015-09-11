@@ -2,7 +2,8 @@ from apiserver.models import User
 from projects.models import Project
 
 from profiles.serializers import InternProfileSerializer, OrgProfileSerializer
-from projects.serializers import SubmissionSerializer, ProjectSerializer
+from projects.serializers import ProjectSerializer
+from submissions.serializers import SubmissionSerializer
 
 from common.serializers import DynamicModelSerializer, ExpandableInfo
 from common.exceptions import InvalidUserType, InternalUserTypeError

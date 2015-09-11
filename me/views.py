@@ -13,7 +13,8 @@ from common.views import DynamicGenericViewSet
 
 from me.serializers import MeSerializer
 from apiserver.serializers import InternSerializer, OrgSerializer
-from projects.serializers import ProjectSerializer, SubmissionSerializer
+from projects.serializers import ProjectSerializer
+from submissions.serializers import SubmissionSerializer
 
 class MeViewSet(DynamicGenericViewSet):
     # Ignore DRY permissions as actions apply directly to user's own model

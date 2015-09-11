@@ -3,7 +3,7 @@ from django.conf import settings
 
 from django.utils import timezone
 
-from common.constants import UserTypes, SubmissionStatus
+from common.constants import UserTypes
 from common.fields import CurrencyField
 from common import model_permissions
 
@@ -13,7 +13,7 @@ def _default_end_date():
 class Project(models.Model, model_permissions.IsAuthOrReadOnly):
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owned_projects')
-    submitters = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Submission', related_name='submitted_projects')
+    submitters = models.ManyToManyField(settings.AUTH_USER_MODEL, through='submissions.Submission', related_name='submitted_projects')
     title = models.CharField(max_length=256, default='Project Title')
     description = models.TextField(max_length=1024, default='Project description')
     prize = CurrencyField(default=1000)
@@ -24,11 +24,11 @@ class Project(models.Model, model_permissions.IsAuthOrReadOnly):
     # Class permissions
     @staticmethod
     def has_create_permission(request):
-        return permissions.checkAuth(request, user_type=UserTypes.ORG, scopes=['write'])
+        return model_permissions.checkAuth(request, user_type=UserTypes.ORG, scopes=['write'])
 
     @staticmethod
     def has_register_permission(request):
-        return permissions.checkAuth(request, user_type=UserTypes.INTERN, scopes=['write'])
+        return model_permissions.checkAuth(request, user_type=UserTypes.INTERN, scopes=['write'])
 
     # Object permissions
     def has_object_read_permission(self, request):
@@ -42,54 +42,3 @@ class Project(models.Model, model_permissions.IsAuthOrReadOnly):
 
     def __str__(self):
         return self.title
-
-class SubmissionManager(models.Manager):
-    def create(self, intern, project, commit=True):
-        submission = Submission(submitter=intern, project=project)
-        if commit:
-            submission.save()
-        return submission
-
-class Submission(models.Model, model_permissions.IsAuth):
-    submitter = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='intern_submissions')
-    project = models.ForeignKey(Project, related_name='submissions')
-    status = models.IntegerField(choices = SubmissionStatus.CHOICES, default=SubmissionStatus.REGISTERED)
-
-    objects = SubmissionManager()
-
-    @staticmethod
-    def has_write_permission(request):
-        return False
-
-    @staticmethod
-    def has_submit_permission(request):
-        return permissions.checkAuth(request, user_type=UserTypes.INTERN, scopes=['write'])
-
-    @staticmethod
-    def has_accept_permission(request):
-        return permissions.checkAuth(request, user_type=UserTypes.ORG, scopes=['write'])
-
-    @staticmethod
-    def has_reject_permission(request):
-        return permissions.checkAuth(request, user_type=UserTypes.ORG, scopes=['write'])
-
-    # TODO: don't forget delete permissions
-
-    # Object permissions
-    def has_object_read_permission(self, request):
-        return (request.user == self.submitter) or (request.user == self.project.owner)
-
-    def has_object_write_permission(self, request):
-        return False
-
-    def has_object_submit_permission(self, request):
-        return request.user == self.submitter
-
-    def has_object_accept_permission(self, request):
-        return request.user == self.project.owner
-
-    def has_object_reject_permission(self, request):
-        return request.user == self.project.owner
-
-    def __str__(self):
-        return 'Submitter: %s | Project: %s' % (self.submitter, self.project)

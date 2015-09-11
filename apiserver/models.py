@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin, Permission
 
 from profiles.models import InternProfile, OrgProfile
-from projects.models import Submission
+from submissions.models import Submission
 from user_settings.models import UserSettings
 
 from common.model_permissions import IsAuthOrReadOnlyAndCreate

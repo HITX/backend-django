@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'debug_toolbar',
 
     'projects',
+    'submissions',
     'profiles',
     'user_settings',
     'apiserver',
