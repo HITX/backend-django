@@ -37,6 +37,9 @@ ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 
 
+AWS_S3_BUCKET = 'internshyps-media'
+
+
 # Application definition
 
 INSTALLED_APPS = (

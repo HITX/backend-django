@@ -22,17 +22,12 @@ class Submission(models.Model, model_permissions.IsAuth):
     objects = SubmissionManager()
 
 
-
-
-    # ========================= PERMISSIONS ========================
-
     # ============== Write permissions
 
     # No writing directly to submissions
     @staticmethod
     def has_write_permission(request):
         return False
-        
 
 
     # ============== Read permissions
@@ -40,7 +35,6 @@ class Submission(models.Model, model_permissions.IsAuth):
     # Intern submitter and org project owner may read
     def has_object_read_permission(self, request):
         return (request.user == self.submitter) or (request.user == self.project.owner)
-
 
 
     # ============== Special action permissions
@@ -70,6 +64,13 @@ class Submission(models.Model, model_permissions.IsAuth):
         return request.user == self.project.owner
 
 
+    # Submitter and owner may read files, write only for submitters handled in view
+    @staticmethod
+    def has_files_permission(request):
+        return True
+
+    def has_object_files_permission(self, request):
+        return request.user == self.submitter or request.user == self.project.owner
 
     def __str__(self):
         return 'Submitter: %s | Project: %s' % (self.submitter, self.project)

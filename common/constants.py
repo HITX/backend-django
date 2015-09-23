@@ -14,3 +14,6 @@ class SubmissionStatus(object):
         (REJECTED, 'Rejected'),
         (ACCEPTED, 'Accepted')
     )
+
+class S3MediaDirs(object):
+    SUBMISSIONS = 'submissions'
