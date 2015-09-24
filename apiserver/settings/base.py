@@ -62,6 +62,7 @@ INSTALLED_APPS = (
     'submissions',
     'profiles',
     'user_settings',
+    'learning',
     'apiserver',
 )
 

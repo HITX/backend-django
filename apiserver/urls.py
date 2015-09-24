@@ -7,10 +7,11 @@ from me.views import MeViewSet
 # from user_settings.views import UserSettingsView
 from projects.views import ProjectViewSet
 from submissions.views import SubmissionViewSet
-
+from learning.views import LearnViewSet
 from newsfeed.views import NewsfeedViewSet
 
 from django.contrib import admin
+
 admin.autodiscover()
 
 router = DefaultRouter()
@@ -20,6 +21,8 @@ router.register(r'groups', GroupViewSet)
 
 router.register(r'projects', ProjectViewSet)
 router.register(r'submissions', SubmissionViewSet)
+
+router.register(r'learning', LearnViewSet)
 
 retrieveOnlyRouter = RetrieveOnlyRouter()
 retrieveOnlyRouter.register(r'me', MeViewSet, base_name='me')
