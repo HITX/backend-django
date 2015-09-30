@@ -28,4 +28,6 @@ class ProjectViewSet(DynamicModelViewSet):
     @detail_route(methods=['post'])
     def register(self, request, pk=None):
         submission = Submission.objects.create(request.user, self.get_object())
-        return Response(SubmissionSerializer(submission).data)
+
+        expand_params = self.request.query_params.get('expand', None);
+        return Response(SubmissionSerializer(submission, expand=expand_params).data)
