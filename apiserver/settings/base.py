@@ -60,6 +60,7 @@ INSTALLED_APPS = (
 
     'projects',
     'submissions',
+    'submission_files',
     'profiles',
     'user_settings',
     'apiserver',

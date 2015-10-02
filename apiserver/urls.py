@@ -7,6 +7,7 @@ from me.views import MeViewSet
 # from user_settings.views import UserSettingsView
 from projects.views import ProjectViewSet
 from submissions.views import SubmissionViewSet
+from submission_files.views import SubmissionFileViewSet
 
 from newsfeed.views import NewsfeedViewSet
 
@@ -20,6 +21,7 @@ router.register(r'groups', GroupViewSet)
 
 router.register(r'projects', ProjectViewSet)
 router.register(r'submissions', SubmissionViewSet)
+router.register(r'submission-files', SubmissionFileViewSet, base_name='submission_files')
 
 retrieveOnlyRouter = RetrieveOnlyRouter()
 retrieveOnlyRouter.register(r'me', MeViewSet, base_name='me')

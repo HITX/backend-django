@@ -180,9 +180,9 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthOrReadOnlyAndCreate):
     # Project helpers
     def _get_projects(self):
         if self.is_intern:
-            return self.submitted_projects
+            return self.submitted_projects.get_queryset()
         elif self.is_org:
-            return self.owned_projects
+            return self.owned_projects.get_queryset()
         raise Exception('Unknown user type')
 
     projects = property(_get_projects)
@@ -190,7 +190,7 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthOrReadOnlyAndCreate):
     # Submission helpers
     def _get_submissions(self):
         if self.is_intern:
-            return self.intern_submissions
+            return self.intern_submissions.get_queryset()
         elif self.is_org:
             return Submission.objects.filter(project__owner=self)
 
