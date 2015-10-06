@@ -14,6 +14,10 @@ from common.constants import UserTypes
 
 class UserManager(BaseUserManager):
     def create(self, validated_data):
+        # TODO: Add a profile manager for each profile type,
+        # create a pull_profile_data method that pops relevent fields
+        # and returns them in an object so those fields can be included inline
+        # in the user input. Do the same for update
         profile_data = validated_data.pop('profile', {})
 
         try:
@@ -43,7 +47,7 @@ class UserManager(BaseUserManager):
         changed_fields = []
 
         profile_data = validated_data.pop('profile', {})
-        email = validate_data.pop('email', None)
+        email = validated_data.pop('email', None)
         password = validated_data.pop('password', None)
 
         if email:
