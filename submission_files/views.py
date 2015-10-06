@@ -30,15 +30,7 @@ class SubmissionFileViewSet(DynamicModelViewSet):
 
         return queryset
 
-    # TODO: change this to use the s3storage delete method
     def destroy(self, request, pk=None):
         instance = self.get_object()
-
-        s3conn = boto.connect_s3(settings.AWS_ACCESS_KEY_ID, settings.AWS_SECRET_ACCESS_KEY)
-        bucket = s3conn.get_bucket(settings.AWS_STORAGE_MEDIA_BUCKET_NAME)
-
-        k = Key(bucket)
-        k.key = str(instance.s3_key)
-        test = k.delete()
-
+        instance.file.delete(save=False)
         return super(SubmissionFileViewSet, self).destroy(request, pk)
