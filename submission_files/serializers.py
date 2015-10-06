@@ -1,4 +1,4 @@
-from rest_framework.serializers import FileField, ValidationError
+from rest_framework.serializers import CharField, FileField, ValidationError
 
 from common.serializers import DynamicModelSerializer, ExpandableInfo
 
@@ -7,6 +7,7 @@ from submissions.models import Submission
 from submission_files.models import SubmissionFile
 
 class SubmissionFileSerializer(DynamicModelSerializer):
+    filename = CharField(read_only=True)
     file = FileField(max_length=None, allow_empty_file=False)
 
     # TODO: make submission a non-required field (for detail put)
@@ -24,6 +25,7 @@ class SubmissionFileSerializer(DynamicModelSerializer):
         fields = (
             'id',
             'owner',
+            'filename',
             'submission',
             'created_date',
             'updated_date',
@@ -31,6 +33,7 @@ class SubmissionFileSerializer(DynamicModelSerializer):
         )
         read_only_fields = (
             'owner',
+            'filename',
             'created_date',
             'updated_date'
         )
