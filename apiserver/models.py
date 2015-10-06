@@ -4,8 +4,9 @@ from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin, Permission
 
 from profiles.models import InternProfile, OrgProfile
-from submissions.models import Submission
 from user_settings.models import UserSettings
+from submissions.models import Submission
+from submission_files.models import SubmissionFile
 
 from common.model_permissions import IsAuthOrReadOnlyAndCreate
 
@@ -193,10 +194,19 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthOrReadOnlyAndCreate):
             return self.intern_submissions.get_queryset()
         elif self.is_org:
             return Submission.objects.filter(project__owner=self)
-
         raise Exception('Unknown user type')
 
     submissions = property(_get_submissions)
+
+    # Submission file helpers
+    def _get_submission_files(self):
+        if self.is_intern:
+            return self.submitted_files.get_queryset()
+        elif self.is_org:
+            return SubmissionFile.objects.filter(submission__project__owner=self)
+        raise Exception('Unknown user type')
+
+    submission_files = property(_get_submission_files)
 
 
     # Object permissions

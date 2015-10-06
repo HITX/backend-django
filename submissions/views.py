@@ -80,7 +80,7 @@ class SubmissionViewSet(DynamicModelViewSet):
         presigned_url = s3_client.generate_presigned_url(
             client_method,
             Params={
-                'Bucket': settings.AWS_S3_BUCKET,
+                'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
                 'Key': key_string,
                 'ContentType': content_type
             },

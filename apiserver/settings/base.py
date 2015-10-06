@@ -36,10 +36,6 @@ ALLOWED_HOSTS = ['*']
 # SECURITY WARNING: probably don't run allow all in production!
 CORS_ORIGIN_ALLOW_ALL = True
 
-
-AWS_S3_BUCKET = 'internshyps-media'
-
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -157,24 +153,38 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/var/www/example.com/media/"
+AWS_ACCESS_KEY_ID = 'AKIAI4G7BLJZUOODLKZQ'
+AWS_SECRET_ACCESS_KEY = 'Zpbyw0ppV+mGNdwBuMODwCe01z/ulik3qY/RAPMx'
+
+# Media storage settings
+AWS_STORAGE_MEDIA_BUCKET_NAME = 'internshyps-media-dev'
+AWS_S3_MEDIA_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_MEDIA_BUCKET_NAME
+MEDIA_URL = 'https://%s/' % AWS_S3_MEDIA_DOMAIN
 MEDIA_ROOT = ''
+DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
+
+# Static storage settings
+AWS_STORAGE_STATIC_BUCKET_NAME = 'internshyps-static-dev'
+AWS_S3_STATIC_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_STATIC_BUCKET_NAME
+STATIC_URL = 'https://%s/' % AWS_S3_STATIC_DOMAIN
+STATIC_ROOT = ''
+STATICFILES_STORAGE = 'custom_storages.StaticStorage'
+
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://example.com/media/", "http://media.example.com/"
-MEDIA_URL = ''
+# MEDIA_URL = ''
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = 'static'
+# STATIC_ROOT = 'static'
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
 
 LOGGING = {
     'version': 1,
