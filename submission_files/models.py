@@ -55,6 +55,10 @@ class SubmissionFile(models.Model, model_permissions.IsAuth):
         return self.s3_key[idx:]
     filename = property(_get_filename)
 
+    def _get_file_url(self):
+        return self.file.url
+    file_url = property(_get_file_url)
+
     # TODO: make another property for filename that splits self.file.name
     # probably use it in serializer
     # Potentially add more props for things that can be gleaned from self.file like size?
