@@ -4,7 +4,6 @@ from rest_framework.routers import DefaultRouter
 from common.routers import RetrieveOnlyRouter
 from apiserver.views import InternViewSet, OrgViewSet, GroupViewSet
 from me.views import MeViewSet
-# from user_settings.views import UserSettingsView
 from projects.views import ProjectViewSet
 from submissions.views import SubmissionViewSet
 from submission_files.views import SubmissionFileViewSet
