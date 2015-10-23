@@ -1,0 +1,5 @@
+- Add versioning
+- Add password confirmation on user creation
+- Separate updating email/password/username into separate actions
+- Handle user delete properly
+- Possible throw errors when PUT requests don't contain the writable fields

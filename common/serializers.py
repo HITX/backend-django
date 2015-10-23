@@ -39,6 +39,37 @@ class InlineFieldsMixin(object):
                     self.fields[related_field_name] = new_field
 
 
+# ==================================================
+
+class DynamicFieldInfo(object):
+    def __init__(self, serializer_class, **kwargs):
+        self.serializer_class = serializer_class
+        self.serializer_kwargs = kwargs
+
+    def get_serializer_instance(self, **kwargs):
+        tmp = self.serializer_kwargs.copy()
+        tmp.update(kwargs)
+        return self.serializer_class(**tmp)
+
+class TestInlineFieldsMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(InlineFieldsMixin, self).__init__(*args, **kwargs)
+
+        inline_fields = getattr(self.Meta, 'inline_fields', None)
+        if inline_fields:
+            for field_name in set(inline_fields.keys()):
+                related_fields = inline_fields[field_name]().fields
+                for related_field_name in related_fields:
+                    new_field = related_fields[related_field_name]
+                    new_field.source = field_name + '.' + new_field.source
+                    self.fields[related_field_name] = new_field
+
+    def to_internal_value():
+        # TODO:
+        pass
+
+# ==================================================
+
 class FilterableFieldsMixin(object):
     def __init__(self, *args, **kwargs):
         filter_desired = kwargs.pop('filter', None)

@@ -3,7 +3,6 @@ from django.db import models
 from django.conf import settings
 
 
-
 def _get_avatar_prefix(instance, filename):
     return '/'.join(('avatars', instance.id))
 

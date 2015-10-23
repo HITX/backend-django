@@ -34,9 +34,6 @@ class MeSerializer(DynamicModelSerializer):
         # kwargs, not self.context() helper
         user = kwargs['context']['request'].user
 
-        print('Anonymous test:')
-        print(user.is_anonymous())
-
         if user.is_intern:
             serializer = InternProfileSerializer
         elif user.is_org:

@@ -3,28 +3,27 @@ from django.core import validators
 from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin, Permission
 
+from rest_framework.serializers import ValidationError
+
 from profiles.models import InternProfile, OrgProfile
 from user_settings.models import UserSettings
 from submissions.models import Submission
 from submission_files.models import SubmissionFile
 
+from common.exceptions import InternalUserTypeError
 from common.model_permissions import IsAuthOrReadOnlyAndCreate
-
 from common.constants import UserTypes
 
+
 class UserManager(BaseUserManager):
-    def create(self, validated_data):
-        # TODO: Add a profile manager for each profile type,
-        # create a pull_profile_data method that pops relevent fields
-        # and returns them in an object so those fields can be included inline
-        # in the user input. Do the same for update
-        profile_data = validated_data.pop('profile', {})
+    def create(self, **validated_data):
+        validated_profile_data = validated_data.pop('profile', {})
 
         try:
             email = validated_data.pop('email')
             password = validated_data.pop('password')
         except KeyError as e:
-            raise Exception(e.args[0] + ' missing from user create data')
+            raise ValidationError(e.args[0] + ' missing from user create data')
 
         user = User(**validated_data)
         user.email = self.normalize_email(email)
@@ -32,64 +31,75 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
 
         if user.is_intern:
-            InternProfile.objects.create(user=user, **profile_data)
+            InternProfile.objects.create(user=user, **validated_profile_data)
         elif user.is_org:
-            OrgProfile.objects.create(user=user, **profile_data)
+            OrgProfile.objects.create(user=user, **validated_profile_data)
         else:
-            raise Exception('Invalid user type')
+            raise InternalUserTypeError
 
-        UserSettings.objects.create(user=user)
+        # UserSettings.objects.create(user=user)
 
         return user
 
-    def update(self, instance, validated_data):
+    # TODO: Add update method that overrides (behaves like) the normal
+    # queryset update method. Must definitely use normalize_email and
+    # set_password
 
-        changed_fields = []
+    # def update(self, **validated_data):
+    #     email = validated_data.pop('email', None)
+    #     password = validated_data.pop('password', None)
+    #     if email: validated_data.email = self.normalize_email(email)
+    #     if password: validated_
 
-        profile_data = validated_data.pop('profile', {})
-        email = validated_data.pop('email', None)
-        password = validated_data.pop('password', None)
+    # def update(self, instance, **validated_data):
+    #
+    #     changed_fields = []
+    #
+    #     validated_profile_data = validated_data.pop('profile', None)
+    #     email = validated_data.pop('email', None)
+    #     password = validated_data.pop('password', None)
+    #
+    #     if email:
+    #         instance.email = self.normalize_email(email)
+    #         changed_fields.append('email')
+    #     if password:
+    #         instance.set_password(password)
+    #         changed_fields.append('password')
+    #     for field, val in validated_data.items():
+    #         instance[field] = val
+    #         changed_fields.append(field)
+    #
+    #     instance.save(using=self._db, update_fields=changed_fields)
+    #     # instance.profile.update(**validated_profile_data)
+    #
+    #     if validated_profile_data:
+    #         if instance.is_intern:
+    #             InternProfile.objects.update(instance.profile, **validated_profile_data)
+    #         elif instance.is_org:
+    #             OrgProfile.objects.update(instance.profile, **validated_profile_data)
+    #         else:
+    #             raise InternalUserTypeError
+    #
+    #     return instance
 
-        if email:
-            instance.email = self.normalize_email(email)
-            changed_fields.append('email')
-        if password:
-            instance.set_password(password)
-            changed_fields.append('password')
-        for field, val in validated_data.items():
-            instance[field] = val
-            changed_fields.append(field)
-
-        instance.save(using=self._db, update_fields=changed_fields)
-
-        if instance.is_intern:
-            InternProfile.objects.update(instance.profile, **profile_data)
-        elif instance.is_org:
-            OrgProfile.objects.update(instance.profile, **profile_data)
-        else:
-            raise Exception('Invalid user type')
-
-        return instance
-
-    # TODO: Get rid of create(...) and add validated_data to the
-    # declaration in create_user and create_superuser
     def create_user(self, username, email, password=None):
-        return self.create({
-            'username': username,
-            'email': email,
-            'password': password,
-            'user_type': UserTypes.INTERN
-        })
+        return self.create(
+            username = username,
+            email = email,
+            password = password,
+            user_type = UserTypes.INTERN
+        )
 
     def create_superuser(self, username, email, password):
-        user = self.create({
-            'username': username,
-            'email': email,
-            'password': password,
-            'user_type': UserTypes.INTERN,
-            'is_staff': True
-        })
+        user = self.create(
+            username = username,
+            email = email,
+            password = password,
+            user_type = UserTypes.INTERN,
+            is_staff = True
+        )
         user.user_permissions = Permission.objects.all()
+        user.save(using=self._db)
         return user
 
 
@@ -141,7 +151,7 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthOrReadOnlyAndCreate):
     objects = UserManager()
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
+    REQUIRED_FIELDS = ['_email']
 
     class Meta:
         db_table = 'auth_user'
@@ -154,22 +164,19 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthOrReadOnlyAndCreate):
 
     # def email_user(self, ...)
 
+    # Special email setter
+    def set_email(self, val):
+        self.email = self.objects.normalize_email(val)
 
     # User type helpers
     def is_type(self, type):
         return self.user_type == type
-
     def _is_intern(self):
-        # return self.user_type == self.USER_TYPE_INTERN
         return self.is_type(UserTypes.INTERN)
-
     def _is_org(self):
-        # return self.user_type == self.USER_TYPE_ORG
         return self.is_type(UserTypes.ORG)
-
     is_intern = property(_is_intern)
     is_org = property(_is_org)
-
 
     # Profile helpers
     def _get_profile(self):
@@ -178,9 +185,7 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthOrReadOnlyAndCreate):
         elif self.is_org:
             return self.org_profile
         raise Exception('Unknown user type')
-
     profile = property(_get_profile)
-
 
     # Project helpers
     def _get_projects(self):
@@ -189,7 +194,6 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthOrReadOnlyAndCreate):
         elif self.is_org:
             return self.owned_projects.get_queryset()
         raise Exception('Unknown user type')
-
     projects = property(_get_projects)
 
     # Submission helpers
@@ -199,7 +203,6 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthOrReadOnlyAndCreate):
         elif self.is_org:
             return Submission.objects.filter(project__owner=self)
         raise Exception('Unknown user type')
-
     submissions = property(_get_submissions)
 
     # Submission file helpers
@@ -209,7 +212,6 @@ class User(AbstractBaseUser, PermissionsMixin, IsAuthOrReadOnlyAndCreate):
         elif self.is_org:
             return SubmissionFile.objects.filter(submission__project__owner=self)
         raise Exception('Unknown user type')
-
     submission_files = property(_get_submission_files)
 
 
